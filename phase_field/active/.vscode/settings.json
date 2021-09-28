@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "HuhMultiACBulkBase.C": "cpp",
+        "HuhMultiACBulkC.C": "cpp",
+        "HuhMultiACBulkF.C": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}

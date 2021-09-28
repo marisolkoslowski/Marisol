@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "HuhMultiACBulkBase.C": "cpp",
+        "HuhMultiACBulkC.C": "cpp",
+        "HuhMultiACBulkF.C": "cpp",
+        "SimpleCoupledACInterface.C": "cpp",
+        "KKSACBulkF.C": "cpp",
+        "KKSACBulkBase.C": "cpp",
+        "HuhCoupledACInterface.C": "cpp",
+        "HuhACInterface.C": "cpp"
+    }
+}
