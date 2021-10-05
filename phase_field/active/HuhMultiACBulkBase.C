@@ -28,15 +28,15 @@ HuhMultiACBulkBase::validParams()
       "Mik_names", "Mobility pairs associated with each coupled phase. Place in order of least to greatest k.");
   params.addRequiredParam<MaterialPropertyName>(
       "num_phases", "The number of phases located at the current point");
-  params.addRequiredCoupledVar("eta_i",
-                               "Order parameter that derivatives are taken with respect to");
+  // params.addRequiredCoupledVar("eta_i",
+  //                              "Order parameter that derivatives are taken with respect to");
   return params;
 }
 
 HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
   : ACBulk<Real>(parameters),
-    _etai_name(getVar("eta_i", 0)->name()),
-    _etai_var(coupled("eta_i", 0)),
+    // _etai_name(getVar("eta_i", 0)->name()),
+    // _etai_var(coupled("eta_i", 0)),
     _prop_Fi(getMaterialProperty<Real>("Fi_name")),
     _prop_si(getMaterialProperty<Real>("si_name")),
     _Fk_names(getParam<std::vector<MaterialPropertyName>>("Fk_names")),
@@ -86,7 +86,7 @@ HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
   {
     // get switching function and derivatives wrt eta_i, the nonlinear variable
     _prop_hk[n] = &getMaterialPropertyByName<Real>(_hk_names[n]);
-    _prop_dhkdetai[n] = &getMaterialPropertyDerivative<Real>(_hk_names[n], _etai_name);
+    // _prop_dhkdetai[n] = &getMaterialPropertyDerivative<Real>(_hk_names[n], _etai_name);
 
   }
 }

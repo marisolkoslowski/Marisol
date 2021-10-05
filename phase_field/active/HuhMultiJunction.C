@@ -7,12 +7,12 @@
 //* Licensed under LGPL 2.1, please see LICENSE for details
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 
-#include "HuhACInterface.h"
+#include "HuhMultiJunction.h"
 
-registerMooseObject("PhaseFieldApp", HuhACInterface);
+registerMooseObject("PhaseFieldApp", HuhMultiJunction);
 
 InputParameters
-HuhACInterface::validParams()
+HuhMultiJunction::validParams()
 {
   InputParameters params = Kernel::validParams();
   params.addClassDescription("Gradient energy for Allen-Cahn Kernel with constant Mobility and "
@@ -20,34 +20,62 @@ HuhACInterface::validParams()
   params.addRequiredCoupledVar("etak_names", "Coupled variable that the Laplacian is taken of");
   params.addMaterialProperyName("si_name", "The step function corresponding to the ith variable.")
   params.addParam<MaterialPropertyName>("Mik_names", "Mik", "The mobility pairs");
-  params.addParam<MaterialPropertyName>("Epsik_names", "Eps_ik", "The interfacial energies epsilon used with kernel");
-  params.addParam<MaterialPropertyName>("wik_names", "wik", "The barrier energies associated with the kernel");
-  params.addParam<MaterialPropertyName>("Epskl_names", "The interfacial energies epsilon usedw with the kernel");
-  params.addParam<MaterialPropertyName>("wil_names", "The barrier energies associated with the kernel");
+  params.addParam<MaterialPropertyName>("Epsil_names", "Eps_il", "The interfacial energies epsilon used with kernel");
+  params.addParam<MaterialPropertyName>("Epskl_names", "Eps_kl", "Interfacial energies");
+  params.addParam<MaterialPropertyName>("wil_names", "wil");
+  params.addParam<MaterialPropertyName>("wkl_names", "wkl");
   params.addParam<MaterialPropertyName>("sk_names", "The step function corresponding to the kth eta.");
   params.addParam<MaterialPropertyName>("num_phases", "A material property specifying the number of phases");
   return params;
 }
 
-HuhACInterface::HuhACInterface(const InputParameters & parameters)
+HuhMultiJunction::HuhMultiJunction(const InputParameters & parameters)
   : Kernel(parameters),
     _Mik_names(getParam<std::vector<MaterialPropertyName>>("Mik_names")),
-    _num_k(_Mik_names.size())
-    _Epsik_names(getParam<std::vector<MaterialPropertyName>>("Epsik_names")),
+    _num_k(_Mik_names.size()),
+    _num_l(_Epsil_names.size()),
+    _Epsil_names(getParam<std::vector<MaterialPropertyName>>("Epsil_names")),
+    _Epskl_names(getParam<std::vector<MaterialPropertyName>>("Epskl_names"),
+    _wil_names(getParam<std::vector<MaterialPropertyName>>("wil_names")),
+    _wkl_names(getParam<std::vector<MaterialPropertyName>>("wkl_names")),
     _etak_var(coupledIndices("etak_names")),
+    _prop_etak(coupledValues("etak_names")),
     _grad_etak(coupledGradients("etak_names")),
-    _sk_names(getParam<std::vector<MaterialPropertyName>>("sk_names"),)
+    _sk_names(getParam<std::vector<MaterialPropertyName>>("sk_names"),),
     _prop_si(getMaterialProperty<Real>("si_name")),
     _num_phases(getMaterialProperty<Real>("num_phases"))
 {
-  if (_num_k != _Epsik_names.size()){
-    paramError("Epsik_names", "Need to pass in as many Epsik names as Mik names");
+  if (_num_k != _etak_var.size()){
+    paramError("etak_names", "Need to pass in as many etak names as Mik names");
   }
+
+  if (_num_l != _Epskl_names.size()){
+    paramError("Epskl_names", "Need to pass in as many Epskl names as Epsil names");
+  }
+
+  if (_num_l != _wil_names.size()){
+    paramError("Epskl_names", "Need to pass in as many wil names as Epsil names");
+  }
+
+  if (_num_l != _wkl_names.size()){
+    paramError("Epskl_names", "Need to pass in as many wkl names as Epsil names");
+  }
+
   for (unsigned int n=0; n<_num_k; ++n){
     _prop_Mik[n] = &getMaterialPropertyByName<Real>(_Mik_names[n]);
     _prop_sk[n] = &getMaterialProperyByName<Real>(_sk_names[n]);
-    _prop_Epsik[n] = &getMaterialPropertyByName<Real>(_Epsik_names[n]);
   }
+
+
+  for(unsigned int n=0; n<_num_l; ++n){
+    _prop_Epsil[n] = &getMaterialPropertyByName<Real>(_Epsil_names[n]);
+    _prop_Epskl[n] = &getMaterialPropertyByName<Real>(_Epskl_names[n]);
+
+    _prop_wil[n] = &getMaterialPropertyByName<Real>(_wil_names[n]);
+    _prop_wkl[n] = &getMaterialPropertyByName<Real>(_wkl_names[n]);
+
+  }
+}
 }
 
 Real

@@ -54,13 +54,13 @@ HuhMultiACBulkC::computeDFDOP(PFFunctionType type)
         // Residual = dF1dc1 * si*sk*Mik*(-ci+ck)
         sum += _si[_qp] * (*_sk[n])[_qp] * (*_Mik[n])[_qp] * ( -_ci[_qp] + (*_cks[n])[_qp]); 
       }
-      return _num_phases[_qp] * _prop_dF1dc1[_qp] * sum;
+      return  _prop_dF1dc1[_qp] * sum/_num_phases[_qp];
 
     case Jacobian:
       // For when this kernel is used in the Lagrange multiplier equation
       // In that case the Lagrange multiplier is the nonlinear variable
-      if (_etai_var != _var.number())
-        return 0.0;
+      // if (_etai_var != _var.number())
+      //   return 0.0;
 
       // For when eta_i is the nonlinear variable
       for (unsigned int n = 0; n < _num_j; ++n){
@@ -69,7 +69,7 @@ HuhMultiACBulkC::computeDFDOP(PFFunctionType type)
         // There is no Jacobian for this term.
         sum += 0;
       }
-      return sum;
+      return sum/_num_phases[_qp];
   }
 
   mooseError("Invalid type passed in");

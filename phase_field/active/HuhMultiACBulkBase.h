@@ -20,7 +20,7 @@
  *
  * The non-linear variable for this Kernel is the order parameter \f$ \eta_i \f$.
  */
-class HuhMultiACBulkBase : public ACBulk<Real>
+class HuhMultiACBulkBase : public HuhACBulk<Real>
 {
 public:
   static InputParameters validParams();
@@ -31,10 +31,10 @@ public:
 
 protected:
   /// name of order parameter that derivatives are taken wrt (needed to retrieve the derivative material properties)
-  VariableName _etai_name;
+  // VariableName _etai_name;
 
   /// index of order parameter that derivatives are taken wrt
-  unsigned int _etai_var;
+  // unsigned int _etai_var;
 
   /// Value of the variable free energy function
   const MaterialProperty<Real> & _prop_Fi;
@@ -65,8 +65,8 @@ protected:
   /// Values of the switching functions for each phase \f$ h_k \f$
   std::vector<const MaterialProperty<Real> *> _prop_hk;
 
-  /// Derivatives of the switching functions wrt the order parameter for this kernel
-  std::vector<const MaterialProperty<Real> *> _prop_dhkdetai;
+  // /// Derivatives of the switching functions wrt the order parameter for this kernel
+  // std::vector<const MaterialProperty<Real> *> _prop_dhkdetai;
 
   /// Names of the mobilities used in this thing
   std::vector<MaterialPropertyName> _Mik_names;

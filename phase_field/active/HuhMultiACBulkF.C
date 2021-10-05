@@ -8,7 +8,7 @@
 //* https://www.gnu.org/licenses/lgpl-2.1.html
 #include "HuhMultiACBulkF.h"
 
-registerMooseObject("PhaseFieldApp", KKSMultiACBulkF);
+registerMooseObject("PhaseFieldApp", HuhMultiACBulkF);
 
 InputParameters
 HuhMultiACBulkF::validParams()
@@ -55,14 +55,14 @@ HuhMultiACBulkF::computeDFDOP(PFFunctionType type)
         sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*prop_Mik[n])[_qp] * 
                   (*prop_wik[n])[_qp] * ((*_prop_hk[n])[_qp] - _u[_qp]);
       }
-      return _num_phases * sum;
+      return sum/_num_phases[_qp];
 
 
     case Jacobian:
       // For when this kernel is used in the Lagrange multiplier equation
       // In that case the Lagrange multiplier is the nonlinear variable
-      if (_etai_var != _var.number())
-        return 0.0;
+      // if (_etai_var != _var.number())
+      //   return 0.0;
 
       // For when eta_i is the nonlinear variable
       // for (unsigned int n = 0; n < _num_j; ++n)
@@ -73,7 +73,7 @@ HuhMultiACBulkF::computeDFDOP(PFFunctionType type)
         sum += -_prop_si[_qp] * (*_prop_sk[n])[_qp]* (*_prop_Mik[n])[_qp]*(*_prop_wik[n])[_qp];
       }
 
-      return _phi[_j][_qp] * _num_phases *  sum;
+      return _phi[_j][_qp]/ _num_phases *  sum;
   }
 
   mooseError("Invalid type passed in");

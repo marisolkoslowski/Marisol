@@ -7,6 +7,9 @@
         "KKSACBulkF.C": "cpp",
         "KKSACBulkBase.C": "cpp",
         "HuhCoupledACInterface.C": "cpp",
-        "HuhACInterface.C": "cpp"
+        "HuhACInterface.C": "cpp",
+        "HuhTripleJunction.C": "cpp",
+        "HuhMultiJunction.C": "cpp",
+        "vector": "cpp"
     }
 }
