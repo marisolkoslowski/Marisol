@@ -57,7 +57,7 @@ HuhACInterface::computeQpResidual()
   Real sum = 0;
   for (unsigned int n = 0; n<_num_k; ++n){
     sum += (*_prop_sk[n])[_qp] * _prop_si[_qp] * (*_prop_Mik[n])[_qp]* (*_prop_Epsik[n])[_qp]
-      *(*_grad_etak[n])[_qp] * _grad_test[i][_qp] - _grad_u[_qp] * _grad_test[i][_qp];
+      *(*_grad_etak[n])[_qp] * _grad_test[i][_qp];
   }
   
   return sum/_num_phases[_qp];

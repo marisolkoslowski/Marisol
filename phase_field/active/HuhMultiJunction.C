@@ -33,7 +33,7 @@ HuhMultiJunction::HuhMultiJunction(const InputParameters & parameters)
   : Kernel(parameters),
     _Mik_names(getParam<std::vector<MaterialPropertyName>>("Mik_names")),
     _num_k(_Mik_names.size()),
-    _num_l(_Epsil_names.size()),
+    _num_extra(_Epsil_names.size()),
     _Epsil_names(getParam<std::vector<MaterialPropertyName>>("Epsil_names")),
     _Epskl_names(getParam<std::vector<MaterialPropertyName>>("Epskl_names"),
     _wil_names(getParam<std::vector<MaterialPropertyName>>("wil_names")),
@@ -49,15 +49,15 @@ HuhMultiJunction::HuhMultiJunction(const InputParameters & parameters)
     paramError("etak_names", "Need to pass in as many etak names as Mik names");
   }
 
-  if (_num_l != _Epskl_names.size()){
+  if (_num_extra != _Epskl_names.size()){
     paramError("Epskl_names", "Need to pass in as many Epskl names as Epsil names");
   }
 
-  if (_num_l != _wil_names.size()){
+  if (_num_extra != _wil_names.size()){
     paramError("Epskl_names", "Need to pass in as many wil names as Epsil names");
   }
 
-  if (_num_l != _wkl_names.size()){
+  if (_num_extra != _wkl_names.size()){
     paramError("Epskl_names", "Need to pass in as many wkl names as Epsil names");
   }
 
@@ -67,7 +67,7 @@ HuhMultiJunction::HuhMultiJunction(const InputParameters & parameters)
   }
 
 
-  for(unsigned int n=0; n<_num_l; ++n){
+  for(unsigned int n=0; n<_num_extra; ++n){
     _prop_Epsil[n] = &getMaterialPropertyByName<Real>(_Epsil_names[n]);
     _prop_Epskl[n] = &getMaterialPropertyByName<Real>(_Epskl_names[n]);
 
@@ -83,12 +83,42 @@ HuhACInterface::computeQpResidual()
 {
   //return _grad_v[_qp] * _kappa[_qp] * _L[_qp] * _grad_test[_i][_qp];
   Real sum = 0;
-  for (unsigned int n = 0; n<_num_k; ++n){
-    sum += (*_prop_sk[n])[_qp] * _prop_si[_qp] * (*_prop_Mik[n])[_qp]* (*_prop_Epsik[n])[_qp]
-      *(*_grad_etak[n])[_qp] * _grad_test[i][_qp] - _grad_u[_qp] * _grad_test[i][_qp];
+  unsigned int _num_l = _num_k - 1;
+
+  for (unsigned int m = 0; m<_num_k; ++m){
+    for(unsigned int n = 0; n<_num_k; ++n){
+
+      // m functions as the "k" index
+      // n functions as the "l" index
+      unsigned int mn = m*_num_l+n;
+
+      if(m == n){
+        sum+=0;
+      }
+
+      else{
+        sum += (*_prop_Mik[m])[_qp] * _prop_si[_qp] * (*_prop_sk[m])[_qp] * (*_prop_sk[n])[_qp] 
+          *( (*_prop_wil[mn])[_qp] - (*prop_wkl[mn])[_qp]) * (*_prop_etak[n])[_qp];
+
+
+        sum += (*_prop_Mik[m])[_qp] * _prop_si[_qp] * (*_prop_sk[m])[_qp] * (*_prop_sk[n])[_qp]
+          * ( (*_prop_Epsil[mn])[_qp] - (*_prop_Epskl[mn])[_qp]) *(*_grad_etak[n])[_qp] * _grad_test[i][_qp];
+      }
+
+
+    }
+
   }
   
   return sum/_num_phases[_qp];
+}
+Real
+HuhTripleJunction::computeQPJacobian(){
+
+  Real Jacobian = 0;
+
+  // so far I don't think that the Jacobian contributes anything.
+  return Jacobian;
 }
 
 Real

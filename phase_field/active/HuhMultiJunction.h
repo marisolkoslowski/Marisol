@@ -28,7 +28,7 @@ protected:
 
 
   /// Step Function
-  const MaterialProperty<Real> & _si;
+  const MaterialProperty<Real> & _prop_si;
 
   std::vector<MaterialPropertyName> _sk_names;
   std::vector<const MaterialProperty<Real> *> _prop_sk;
@@ -37,7 +37,7 @@ protected:
   std::vector<const MaterialProperty<Real> *> _prop_Mik;
 
   unsigned int _num_k;
-  unsigned int _num_l;
+  unsigned int _num_extra;
   
   
   /// Interfacial parameter

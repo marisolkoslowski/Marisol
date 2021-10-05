@@ -97,12 +97,14 @@ Real
 ACBulk<T>::precomputeQpJacobian()
 {
   // Get free energy derivative and Jacobian
-  Real dFdop = computeDFDOP(Residual);
 
   Real JdFdop = computeDFDOP(Jacobian);
 
   // Set Jacobian value using product rule
-  return _L[_qp] * JdFdop + _dLdop[_qp] * _phi[_j][_qp] * dFdop;
+  // Removed the mobility. 
+  return JdFdop;
+
+  //return _L[_qp] * JdFdop + _dLdop[_qp] * _phi[_j][_qp] * dFdop;
 }
 
 template <typename T>
