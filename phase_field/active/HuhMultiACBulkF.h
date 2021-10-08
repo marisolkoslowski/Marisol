@@ -31,6 +31,7 @@ protected:
   virtual Real computeDFDOP(PFFunctionType type);
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
+
   /// double well height parameter
   std::vector<MaterialPropertyName> _wik_names;
   std::vector<const MaterialProperty<Real> *> _prop_wik;

@@ -49,11 +49,11 @@ HuhMultiACBulkF::computeDFDOP(PFFunctionType type)
       for (unsigned int n = 0; n<_num_k; ++n)
       {
         // Residual += si*sk*Mik*(Fi-Fk)
-        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*prop_Mik[n])[_qp]* ((*prop_Fi[n])[_qp] - (*prop_Fk[n])[_qp]));
+        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*prop_Mik[n])[_qp]* ( _prop_Fi[_qp] - (*prop_Fk[n])[_qp]));
 
         // Residual += si*sk*Mik*wik*(phi_k-phi_i) 
-        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*prop_Mik[n])[_qp] * 
-                  (*prop_wik[n])[_qp] * ((*_prop_hk[n])[_qp] - _u[_qp]);
+        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*_prop_Mik[n])[_qp] * 
+                  (*_prop_wik[n])[_qp] * ( (*_prop_hk[n])[_qp] - _u[_qp]);
       }
       return sum/_num_phases[_qp];
 

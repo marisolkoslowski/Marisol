@@ -21,10 +21,10 @@
  * ACBulk.
  */
 template <typename T>
-class ACBulk : public DerivativeMaterialInterface<JvarMapKernelInterface<KernelValue>>
+class HuhACBulk : public DerivativeMaterialInterface<JvarMapKernelInterface<KernelValue>>
 {
 public:
-  ACBulk(const InputParameters & parameters);
+  HuhACBulk(const InputParameters & parameters);
 
   static InputParameters validParams();
   virtual void initialSetup();
@@ -43,47 +43,47 @@ protected:
   virtual Real computeDFDOP(PFFunctionType type) = 0;
 
   /// Mobility
-  const MaterialProperty<T> & _L;
+  // const MaterialProperty<T> & _L;
 
   /// Mobility derivative w.r.t. order parameter
-  const MaterialProperty<T> & _dLdop;
+  // const MaterialProperty<T> & _dLdop;
 
   /// Mobility derivative w.r.t coupled variables
-  std::vector<const MaterialProperty<T> *> _dLdarg;
+  // std::vector<const MaterialProperty<T> *> _dLdarg;
 };
 
 template <typename T>
-ACBulk<T>::ACBulk(const InputParameters & parameters)
-  : DerivativeMaterialInterface<JvarMapKernelInterface<KernelValue>>(parameters),
-    _L(getMaterialProperty<T>("mob_name")),
-    _dLdop(getMaterialPropertyDerivative<T>("mob_name", _var.name())),
-    _dLdarg(_n_args)
+HuhACBulk<T>::HuhACBulk(const InputParameters & parameters)
+  : DerivativeMaterialInterface<JvarMapKernelInterface<KernelValue>>(parameters)
+    // _L(getMaterialProperty<T>("mob_name")),
+    // _dLdop(getMaterialPropertyDerivative<T>("mob_name", _var.name())),
+    // _dLdarg(_n_args)
 {
   // Iterate over all coupled variables
-  for (unsigned int i = 0; i < _n_args; ++i)
-    _dLdarg[i] = &getMaterialPropertyDerivative<T>("mob_name", i);
+  // for (unsigned int i = 0; i < _n_args; ++i)
+    // _dLdarg[i] = &getMaterialPropertyDerivative<T>("mob_name", i);
 }
 
 template <typename T>
 InputParameters
-ACBulk<T>::validParams()
+HuhACBulk<T>::validParams()
 {
   InputParameters params = JvarMapKernelInterface<KernelValue>::validParams();
-  params.addClassDescription("Allen-Cahn base Kernel");
-  params.addParam<MaterialPropertyName>("mob_name", "L", "The mobility used with the kernel");
+  // params.addClassDescription("Allen-Cahn base Kernel");
+  // params.addParam<MaterialPropertyName>("mob_name", "L", "The mobility used with the kernel");
   return params;
 }
 
 template <typename T>
 void
-ACBulk<T>::initialSetup()
+HuhACBulk<T>::initialSetup()
 {
-  validateNonlinearCoupling<Real>("mob_name");
+  // validateNonlinearCoupling<Real>("mob_name");
 }
 
 template <typename T>
 Real
-ACBulk<T>::precomputeQpResidual()
+HuhACBulk<T>::precomputeQpResidual()
 {
   // Get free energy derivative from function
   Real dFdop = computeDFDOP(Residual);
@@ -94,7 +94,7 @@ ACBulk<T>::precomputeQpResidual()
 
 template <typename T>
 Real
-ACBulk<T>::precomputeQpJacobian()
+HuhACBulk<T>::precomputeQpJacobian()
 {
   // Get free energy derivative and Jacobian
 
@@ -109,11 +109,12 @@ ACBulk<T>::precomputeQpJacobian()
 
 template <typename T>
 Real
-ACBulk<T>::computeQpOffDiagJacobian(unsigned int jvar)
+HuhACBulk<T>::computeQpOffDiagJacobian(unsigned int jvar)
 {
   // Get the coupled variable jvar is referring to
-  const unsigned int cvar = mapJvarToCvar(jvar);
+  // const unsigned int cvar = mapJvarToCvar(jvar);
 
   // Set off-diagonal Jacobian term from mobility derivatives
-  return (*_dLdarg[cvar])[_qp] * _phi[_j][_qp] * computeDFDOP(Residual) * _test[_i][_qp];
+  // return (*_dLdarg[cvar])[_qp] * _phi[_j][_qp] * computeDFDOP(Residual) * _test[_i][_qp];
+  return 0;
 }

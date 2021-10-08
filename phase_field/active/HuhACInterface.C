@@ -21,9 +21,6 @@ HuhACInterface::validParams()
   params.addMaterialProperyName("si_name", "The step function corresponding to the ith variable.")
   params.addParam<MaterialPropertyName>("Mik_names", "Mik", "The mobility pairs");
   params.addParam<MaterialPropertyName>("Epsik_names", "Eps_ik", "The interfacial energies epsilon used with kernel");
-  params.addParam<MaterialPropertyName>("wik_names", "wik", "The barrier energies associated with the kernel");
-  params.addParam<MaterialPropertyName>("Epskl_names", "The interfacial energies epsilon usedw with the kernel");
-  params.addParam<MaterialPropertyName>("wil_names", "The barrier energies associated with the kernel");
   params.addParam<MaterialPropertyName>("sk_names", "The step function corresponding to the kth eta.");
   params.addParam<MaterialPropertyName>("num_phases", "A material property specifying the number of phases");
   return params;
@@ -43,6 +40,9 @@ HuhACInterface::HuhACInterface(const InputParameters & parameters)
   if (_num_k != _Epsik_names.size()){
     paramError("Epsik_names", "Need to pass in as many Epsik names as Mik names");
   }
+  if (_num_k != _sk_names.size()){
+    paramError("sk_names", "Need to pass in as many sk names as Mik names");
+  }
   for (unsigned int n=0; n<_num_k; ++n){
     _prop_Mik[n] = &getMaterialPropertyByName<Real>(_Mik_names[n]);
     _prop_sk[n] = &getMaterialProperyByName<Real>(_sk_names[n]);
@@ -56,8 +56,14 @@ HuhACInterface::computeQpResidual()
   //return _grad_v[_qp] * _kappa[_qp] * _L[_qp] * _grad_test[_i][_qp];
   Real sum = 0;
   for (unsigned int n = 0; n<_num_k; ++n){
+
+    // NOTE: This is an addition!
     sum += (*_prop_sk[n])[_qp] * _prop_si[_qp] * (*_prop_Mik[n])[_qp]* (*_prop_Epsik[n])[_qp]
       *(*_grad_etak[n])[_qp] * _grad_test[i][_qp];
+
+    // NOTE: This is a subtraction!
+    sum -= (*_prop_sk[n])[_qp] * _prop_si[_qp] * (*_prop_Mik[n])[_qp]* (*_prop_Epsik[n])[_qp]
+      *_grad_u[_qp] * _grad_test[i][_qp];
   }
   
   return sum/_num_phases[_qp];

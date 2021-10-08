@@ -18,7 +18,7 @@ HuhMultiJunction::validParams()
   params.addClassDescription("Gradient energy for Allen-Cahn Kernel with constant Mobility and "
                              "Interfacial parameter for a coupled order parameter variable.");
   params.addRequiredCoupledVar("etak_names", "Coupled variable that the Laplacian is taken of");
-  params.addMaterialProperyName("si_name", "The step function corresponding to the ith variable.")
+  params.addMaterialProperyName("si_name", "The step function corresponding to the ith variable.");
   params.addParam<MaterialPropertyName>("Mik_names", "Mik", "The mobility pairs");
   params.addParam<MaterialPropertyName>("Epsil_names", "Eps_il", "The interfacial energies epsilon used with kernel");
   params.addParam<MaterialPropertyName>("Epskl_names", "Eps_kl", "Interfacial energies");

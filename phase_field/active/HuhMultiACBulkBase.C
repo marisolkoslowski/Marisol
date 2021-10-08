@@ -68,7 +68,12 @@ HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
     // get step function value
     _prop_sk[n] = &getMaterialPropertyByName<Real>(_sk_names[n]);
 
+    // get mobility value
     _prop_Mik[n] = &getMaterialPropertyByName<Real>(_Mik_names[n]);
+
+    // get switching function value
+    _prop_hk[n] = &getMaterialPropertyByName<Real>(_hk_names[n]);
+
 
     for (unsigned int i = 0; i < _n_args; ++i)
     {
@@ -82,13 +87,6 @@ HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
     _prop_dFidarg = &getMaterialPropertyDerivative<Real>("Fi_name", i);
   }
 
-  for(unsigned int n = 0; n< _num_k; ++n)
-  {
-    // get switching function and derivatives wrt eta_i, the nonlinear variable
-    _prop_hk[n] = &getMaterialPropertyByName<Real>(_hk_names[n]);
-    // _prop_dhkdetai[n] = &getMaterialPropertyDerivative<Real>(_hk_names[n], _etai_name);
-
-  }
 }
 
 void
