@@ -27,7 +27,7 @@ protected:
 
 
   /// Step Function
-  const MaterialProperty<Real> & _si;
+  const MaterialProperty<Real> & _prop_si;
 
   std::vector<MaterialPropertyName> _sk_names;
   std::vector<const MaterialProperty<Real> *> _prop_sk;
@@ -43,8 +43,9 @@ protected:
 
   /// Gradient of the coupled variable
   // std::vector<VariableName> _etak_names;
-  std::vector<const VariableGradient *> _grad_etak;
   std::vector<unsigned int> _etak_var;
+  std::vector<const VariableGradient *> _grad_etak;
+
   /// Index of the coupled variable
 
   const MaterialProperty<Real> & _num_phases;

@@ -26,8 +26,8 @@ HuhMultiACBulkC::validParams()
 }
 
 HuhMultiACBulkC::HuhMultiACBulkC(const InputParameters & parameters)
-  : KKSMultiACBulkBase(parameters),
-    _ci(coupledValue("ci_name"))
+  : HuhMultiACBulkBase(parameters),
+    _ci(coupledValue("ci_name")),
     _ci_var(coupled("ci_name",0)),
     _c1_name(getVar("ck_name", 0)
                  ->name()), // Can use any dFk/dck since they are equal so pick first ck in the list
@@ -52,7 +52,7 @@ HuhMultiACBulkC::computeDFDOP(PFFunctionType type)
         // sum += (*_prop_dhdetai[n])[_qp] * (*_cks[n])[_qp];
 
         // Residual = dF1dc1 * si*sk*Mik*(-ci+ck)
-        sum += _si[_qp] * (*_sk[n])[_qp] * (*_Mik[n])[_qp] * ( -_ci[_qp] + (*_cks[n])[_qp]); 
+        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp] * (*_prop_Mik[n])[_qp] * ( -_ci[_qp] + (*_cks[n])[_qp]); 
       }
       return  _prop_dF1dc1[_qp] * sum/_num_phases[_qp];
 
@@ -63,7 +63,7 @@ HuhMultiACBulkC::computeDFDOP(PFFunctionType type)
       //   return 0.0;
 
       // For when eta_i is the nonlinear variable
-      for (unsigned int n = 0; n < _num_j; ++n){
+      for (unsigned int n = 0; n < _num_k; ++n){
         // sum += (*_prop_d2hjdetai2[n])[_qp] * (*_cjs[n])[_qp];
         
         // There is no Jacobian for this term.

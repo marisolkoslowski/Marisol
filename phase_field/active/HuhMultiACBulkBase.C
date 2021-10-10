@@ -12,7 +12,7 @@
 InputParameters
 HuhMultiACBulkBase::validParams()
 {
-  InputParameters params = ACBulk<Real>::validParams();
+  InputParameters params = HuhACBulk<Real>::validParams();
   params.addClassDescription("Multi-order parameter KKS model kernel for the Bulk Allen-Cahn. This "
                              "operates on one of the order parameters 'eta_i' as the non-linear "
                              "variable");
@@ -34,7 +34,7 @@ HuhMultiACBulkBase::validParams()
 }
 
 HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
-  : ACBulk<Real>(parameters),
+  : HuhACBulk<Real>(parameters),
     // _etai_name(getVar("eta_i", 0)->name()),
     // _etai_var(coupled("eta_i", 0)),
     _prop_Fi(getMaterialProperty<Real>("Fi_name")),
@@ -44,17 +44,18 @@ HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
     _prop_Fk(_num_k),
     _prop_dFkdarg(_num_k),
     _sk_names(getParam<std::vector<MaterialPropertyName>>("sk_names")),
-    _prop_sk(num_k),
+    _prop_sk(_num_k),
     _hk_names(getParam<std::vector<MaterialPropertyName>>("hk_names")),
     _prop_hk(_num_k),
-    _prop_dhkdetai(_num_k),
+ //   _prop_dhkdetai(_num_k),
     _Mik_names(getParam<std::vector<MaterialPropertyName>>("Mik_names")),
-    _num_phases(getMaterialProperty<Real>("num_phases")),
-    _prop_Mik(_num_k)
+    _prop_Mik(_num_k),
+    _num_phases(getMaterialProperty<Real>("num_phases"))
+ 
     
 {
   // check passed in parameter vectors
-  if (_num_k != _hk_names.size())
+  if (_num_k != _hk_names.size()) {
     paramError("hk_names", "Need to pass in as many hk_names as Fk_names-1");
 
   }
@@ -82,9 +83,9 @@ HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
     }
   }
 
-  for (unsigned int i = 0; i < _n_args)
+  for (unsigned int i = 0; i < _n_args; ++i)
   {
-    _prop_dFidarg = &getMaterialPropertyDerivative<Real>("Fi_name", i);
+    _prop_dFidarg[i] = &getMaterialPropertyDerivative<Real>("Fi_name", i);
   }
 
 }
@@ -92,7 +93,7 @@ HuhMultiACBulkBase::HuhMultiACBulkBase(const InputParameters & parameters)
 void
 HuhMultiACBulkBase::initialSetup()
 {
-  ACBulk<Real>::initialSetup();
+  HuhACBulk<Real>::initialSetup();
 
   // Test. If this line breaks, delete it.
   validateNonlinearCoupling<Real>("Fi_name");

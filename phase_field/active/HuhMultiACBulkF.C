@@ -23,7 +23,7 @@ HuhMultiACBulkF::validParams()
 HuhMultiACBulkF::HuhMultiACBulkF(const InputParameters & parameters)
   : HuhMultiACBulkBase(parameters),
     _wik_names(getParam<std::vector<MaterialPropertyName>>("wik_names")),
-    _prop_wik(_num_k))
+    _prop_wik(_num_k)
 {
   for (unsigned int n = 0; n<_num_k; ++n)
   {
@@ -44,12 +44,10 @@ HuhMultiACBulkF::computeDFDOP(PFFunctionType type)
 
       // return sum + _wi * _prop_dgi[_qp];
       
-      // Get the value of Fi
-      Real Fi = 
       for (unsigned int n = 0; n<_num_k; ++n)
       {
         // Residual += si*sk*Mik*(Fi-Fk)
-        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*prop_Mik[n])[_qp]* ( _prop_Fi[_qp] - (*prop_Fk[n])[_qp]));
+        sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*_prop_Mik[n])[_qp]* ( _prop_Fi[_qp] - (*_prop_Fk[n])[_qp]);
 
         // Residual += si*sk*Mik*wik*(phi_k-phi_i) 
         sum += _prop_si[_qp] * (*_prop_sk[n])[_qp]* (*_prop_Mik[n])[_qp] * 
@@ -73,7 +71,7 @@ HuhMultiACBulkF::computeDFDOP(PFFunctionType type)
         sum += -_prop_si[_qp] * (*_prop_sk[n])[_qp]* (*_prop_Mik[n])[_qp]*(*_prop_wik[n])[_qp];
       }
 
-      return _phi[_j][_qp]/ _num_phases *  sum;
+      return _phi[_j][_qp]/ _num_phases[_qp] *  sum;
   }
 
   mooseError("Invalid type passed in");

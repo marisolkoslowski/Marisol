@@ -32,10 +32,10 @@ protected:
   virtual Real computeQpOffDiagJacobian(unsigned int jvar);
 
   /// Names of phase concentration variables
-  MaterialPropertyName _c1_name;
-
   const VariableValue & _ci;
   unsigned int _ci_var;
+  MaterialPropertyName _c1_name;
+
 
   const std::vector<const VariableValue *> _cks;
   const std::vector<unsigned int> _cks_var;

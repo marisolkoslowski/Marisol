@@ -43,6 +43,7 @@ protected:
 
   const MaterialProperty<Real> & _prop_si;
 
+
   /// Names of free energy functions for each phase \f$ F_j \f$
   std::vector<MaterialPropertyName> _Fk_names;
   unsigned int _num_k;
@@ -75,4 +76,6 @@ protected:
   std::vector<const MaterialProperty<Real> *> _prop_Mik;
 
   const MaterialProperty<Real> & _num_phases;
+
+
 };
