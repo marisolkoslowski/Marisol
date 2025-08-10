@@ -22,6 +22,7 @@ ADComputeMISTERnetHeat::validParams()
   params.addRequiredCoupledVar("ax", "ax");
   params.addRequiredParam<Real>("thr_v", "thr_v");
   params.addRequiredParam<Real>("thr_a", "thr_a");
+  params.addRequiredParam<bool>("direct_T", "assign T predictions directly from a purely numerical source");
   return params;
 }
 
@@ -45,24 +46,74 @@ ADComputeMISTERnetHeat::ADComputeMISTERnetHeat(const InputParameters & parameter
     _vx(coupledValue("vx")),
     _ax(coupledValue("ax")),
     _thr_v(getParam<Real>("thr_v")),
-    _thr_a(getParam<Real>("thr_a"))
+    _thr_a(getParam<Real>("thr_a")),
+    _thr_a(getParam<Real>("thr_a")),
+
+    //Test: formulate a surrogate chemistry evolution source
+    _Y1_dot_surrogate(declareADProperty<Real>("Y1_dot_surrogate")),
+    _Y2_dot_surrogate(declareADProperty<Real>("Y2_dot_surrogate")),
+    _Y3_dot_surrogate(declareADProperty<Real>("Y3_dot_surrogate")),
+    _indicator_surrogate(declareProperty<Real>("indicator_surrogate")),
+    _direct_T(getParam<bool>("direct_T"))
 
 {}
 
 void
 ADComputeMISTERnetHeat::computeQpProperties()
 {
+  
   if(_v_flag[_qp] == 1. && _dirac_switch_shock[_qp] > 0. && _dirac_switch_shock[_qp] < 1.){
-    _heatrate_mister_shock[_qp] = std::max((1. / _heat_time_shock) * _density[_qp] * _specific_heat[_qp] * (_temperature_mister_shock[_qp] - _T_ref), 0.);
+    if(_direct_T){
+      _heatrate_mister_shock[_qp] = _temperature_mister_shock[_qp] / _heat_time_shock;
+    }else{
+      _heatrate_mister_shock[_qp] = std::max((1. / _heat_time_shock) * _density[_qp] * _specific_heat[_qp] * (_temperature_mister_shock[_qp] - _T_ref), 0.);
+    }
   }
   else {
     _heatrate_mister_shock[_qp] = 0.0;
   }
 
   if(_v_flag[_qp] == 1. && _dirac_switch_react[_qp] > 0. && _dirac_switch_react[_qp] < 1.){
-    _heatrate_mister_react[_qp] = std::max((1. / _heat_time_react) * _density[_qp] * _specific_heat[_qp] * (_temperature_mister_react[_qp] - _temperature_mister_shock[_qp]), 0.);
+    if(_direct_T){
+      _heatrate_mister_react[_qp] = _temperature_mister_react[_qp] / _heat_time_react;
+    }else{
+      _heatrate_mister_react[_qp] = std::max((1. / _heat_time_react) * _density[_qp] * _specific_heat[_qp] * (_temperature_mister_react[_qp] - _temperature_mister_shock[_qp]), 0.);
+    }
   }
   else {
     _heatrate_mister_react[_qp] = 0.0;
   }
+
+  //compute the surrogate rates
+  //the surrogate rates depend only on tau_react
+  //we generate and assign the predicted values by temperature
+
+  Real Y1_pred;
+  Real Y2_pred;
+  Real Y3_pred;
+
+  if (_temperature_mister_react[_qp] > 1500.){ //this is the case where deflagration occurs locally, assuming deflagrated regions occur when T > 1500K
+    Y1_pred = 0.;
+    Y2_pred = 0.;
+    Y3_pred = 1.;
+  }else{ //case where q_react < q_shock, meaning quench. We don't do anything in this case
+    Y1_pred = 0.;
+    Y2_pred = 0.;
+    Y3_pred = 0.;
+  }
+
+  //construct rates
+  //we need to define an indicator to turn on and off the surrogate chemistry source
+
+  if(_v_flag[_qp] ==1. && _dirac_switch_react[_qp] > 0. && _dirac_switch_react[_qp] < 1.){ //chemical takeover stage at reacted regions
+    _indicator_surrogate[_qp] = 1.;
+  }else{
+    _indicator_surrogate[_qp] = 0.;
+  }
+
+  //from conservation of mass: Y1 + Y2 + Y3 = 1
+
+  _Y1_dot_surrogate[_qp] = - _indicator_surrogate[_qp] * Y3_pred / _heat_time_react;
+  _Y2_dot_surrogate[_qp] = _indicator_surrogate[_qp] * Y2_pred / _heat_time_react;
+  _Y3_dot_surrogate[_qp] = _indicator_surrogate[_qp] * Y3_pred / _heat_time_react;
 }
