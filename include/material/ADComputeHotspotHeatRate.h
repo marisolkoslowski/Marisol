@@ -24,6 +24,6 @@ private:
     const ADMaterialProperty<Real> &_tau;
     const bool _use_PK2;
     //declaration
-    ADMaterialProperty<Real> &_q_elastic;
+    ADMaterialProperty<Real> &_q_hotspot;
     const bool _use_lump;
 };

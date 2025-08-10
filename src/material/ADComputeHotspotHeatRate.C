@@ -25,7 +25,7 @@ ADComputeHotspotHeatRate::ADComputeHotspotHeatRate(const InputParameters & param
 
     _use_PK2(getParam<bool>("use_PK2")),
     //declare properties
-    _q_elastic(declareADProperty<Real>("q_elastic")),
+    _q_hotspot(declareADProperty<Real>("q_hotspot")),
     _use_lump(getParam<bool>("use_lump"))
 {   
 }
@@ -33,32 +33,13 @@ ADComputeHotspotHeatRate::ADComputeHotspotHeatRate(const InputParameters & param
 void
 ADComputeHotspotHeatRate::computeQpProperties()
 {
-    RankTwoTensor I2(RankTwoTensor::initIdentity);
+    //generic lumped hotspot shape
+    ADReal q = (1. / _tau[_qp]) * _target[_qp];
+    ADReal lump_factor = (1. / (_rho[_qp] * _cv[_qp]));
 
-    //component contribution from volumetric compression
-    ADReal q_pressure;
-    RankTwoTensor Ce = _Fe[_qp].transpose() * _Fe[_qp];
-
-    //if use PK2, use work conjugate C.inverse()
-    if (_use_PK2){
-        q_pressure = - std::max(_T[_qp] * _dP_dT[_qp] * (Ce.inverse().doubleContraction(_Ee_dot[_qp])), 0.);
-    }else{
-        q_pressure = - std::max(_T[_qp] * _dP_dT[_qp] * _Ee_dot[_qp].trace(), 0.0);
+    if (_use_lump){
+        q *= lump_factor;
     }
 
-    //add artificial viscosity factor
-
-    ADReal q_av;
-    q_av = _beta_av * _pressure_av[_qp] * _Ee_dot[_qp].trace();
-
-    ADReal q_tot = q_pressure + q_av;
-
-    //activation for MISTERnet simulations
-    if(_dirac_switch_react[_qp] > _thr_activation){
-        q_tot *= 1.; //keep while activated
-    }else{
-        q_tot *= 0.; //set to zero before activation
-    }
-
-    _q_elastic[_qp] = q_tot;
+    _q_hotspot[_qp] = q;
 }
